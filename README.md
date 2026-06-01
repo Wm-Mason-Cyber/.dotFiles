@@ -1,4 +1,4 @@
-# dotFiles
+# .dotfiles
 
 Shell configuration, editor settings, and classroom helper scripts for
 AP Cybersecurity students. Designed for **Debian 13+**, with full support
@@ -14,13 +14,13 @@ The installer creates **symbolic links** from your home directory into this
 repository. For example:
 
 ```
-~/.bashrc       →  ~/dotfiles/.bashrc
-~/.vimrc        →  ~/dotfiles/.vimrc
-~/.gitconfig    →  ~/dotfiles/.gitconfig
-~/.bash_aliases →  ~/dotfiles/.bash_aliases
+~/.bashrc       →  ~/.dotfiles/.bashrc
+~/.vimrc        →  ~/.dotfiles/.vimrc
+~/.gitconfig    →  ~/.dotfiles/.gitconfig
+~/.bash_aliases →  ~/.dotfiles/.bash_aliases
 ```
 
-Your `~` is never itself a git repository. Only the `~/dotfiles/` subfolder
+Your `~` is never itself a git repository. Only the `~/.dotfiles/` subfolder
 is tracked by git, so you will never accidentally commit unrelated files.
 Any edit you make to `~/.bashrc` is an edit inside the repo — no copying
 or syncing required. This is the **standard community dotfile pattern**
@@ -32,9 +32,9 @@ of examples.
 ## Quick start
 
 ```bash
-# 1. Clone into ~/dotfiles — the canonical home for this repo
-git clone https://github.com/RiceC-at-MasonHS/dotFiles.git ~/dotfiles
-cd ~/dotfiles
+# 1. Clone into ~/.dotfiles — the canonical home for this repo
+git clone https://github.com/Wm-Mason-Cyber/.dotfiles.git ~/.dotfiles
+cd ~/.dotfiles
 
 # 2. Run the installer (creates symlinks by default)
 ./install.sh

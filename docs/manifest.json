@@ -1,5 +1,5 @@
 {
-  "name": "dotFiles",
+  "name": ".dotfiles",
   "description": "Dotfiles and a small installer for classroom VMs. Provides safe, minimal defaults and an optional package installer for students.",
   "version": "1.0.0",
   "goals": [

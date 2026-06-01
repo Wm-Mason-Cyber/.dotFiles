@@ -1,5 +1,5 @@
-dotFiles docs
-===========
+.dotfiles docs
+==============
 
 This folder contains a small machine-readable manifest and human-readable notes about the repository's goals and how to use it in classroom automation.
 

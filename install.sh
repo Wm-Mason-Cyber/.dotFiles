@@ -26,7 +26,7 @@ usage() {
 Usage: install.sh [OPTIONS]
 
 Creates symlinks by default (recommended):
-  ~/.bashrc → ~/dotfiles/.bashrc, etc.
+  ~/.bashrc → ~/.dotfiles/.bashrc, etc.
 Edits you make in ~ go directly into the repo with no copying needed.
 
 Options:
