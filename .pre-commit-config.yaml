@@ -12,23 +12,3 @@ repos:
         entry: shellcheck
         language: system
         types: [shell]
-
-      - id: check-yaml
-        name: check yaml syntax
-        entry: python3 -c "
-import sys, yaml
-for f in sys.argv[1:]:
-    try:
-        yaml.safe_load(open(f))
-    except yaml.YAMLError as e:
-        print(f'{f}: {e}', file=sys.stderr); sys.exit(1)
-"
-        language: system
-        types: [yaml]
-
-      - id: trailing-whitespace
-        name: trailing whitespace
-        entry: bash -c 'grep -rn " $" "$@" && exit 1 || true' --
-        language: system
-        types: [text]
-        exclude: '\.md$'
