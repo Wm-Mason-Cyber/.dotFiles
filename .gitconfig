@@ -1,17 +1,13 @@
 [core]
-  editor = vim
+    editor = vim
 
 [color]
-  ui = auto
+    ui = auto
 
-# ~/.gitconfig - template for students. Fill in name and email after forking.
+# IMPORTANT: replace CHANGE_ME values before making your first commit.
+# The install.sh script will prompt you, or run these commands manually:
+#   git config --global user.name "Your Name"
+#   git config --global user.email "you@school.edu"
 [user]
-  email = 171101634+RiceC-at-MasonHS@users.noreply.github.com
-  name = RiceC-at-MasonHS
-
-# Tips:
-#  - Update your name and email:
-#      git config --global user.name "Your Name"
-#      git config --global user.email you@example.com
-#  - This file is safe to commit into a classroom repo as a template; each student should
-#    replace the placeholder values with their own.
+    name  = CHANGE_ME
+    email = CHANGE_ME@example.com
