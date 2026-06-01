@@ -12,6 +12,8 @@ RECOMMENDED=(
   wget
   python3
   python3-pip
+  python3-flask
+  python3-fastapi
   bash-completion
   build-essential
   net-tools
