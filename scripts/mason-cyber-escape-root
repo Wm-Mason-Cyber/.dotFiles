@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+# mason-cyber-escape-root - switch from a root shell back to your normal user account
+#
+# Usage: mason-cyber-escape-root
+#
+# Tries to detect your normal username automatically via:
+#   1. $SUDO_USER  (set when you used 'sudo su' or 'sudo bash')
+#   2. logname     (the login owner of the session)
+#   3. who         (first non-root user with a terminal)
+#   4. Prompts you if all else fails
+
+if [ "${EUID:-$(id -u)}" -ne 0 ]; then
+    echo "You are already running as $(whoami) — not root. Nothing to do."
+    exit 0
+fi
+
+find_real_user() {
+    # 1. SUDO_USER is the most reliable signal
+    if [ -n "${SUDO_USER:-}" ] && [ "$SUDO_USER" != "root" ]; then
+        echo "$SUDO_USER"; return 0
+    fi
+
+    # 2. logname reports the login-session owner
+    local lg
+    if lg=$(logname 2>/dev/null) && [ -n "$lg" ] && [ "$lg" != "root" ]; then
+        echo "$lg"; return 0
+    fi
+
+    # 3. First non-root user visible in who output
+    local wu
+    wu=$(who 2>/dev/null | awk '$1 != "root" {print $1; exit}')
+    if [ -n "$wu" ]; then
+        echo "$wu"; return 0
+    fi
+
+    return 1
+}
+
+target=$(find_real_user || true)
+
+if [ -z "$target" ]; then
+    echo "Could not detect your normal username automatically." >&2
+    read -r -p "Enter your username: " target
+fi
+
+if [ -z "$target" ]; then
+    echo "No username provided. Type 'exit' to leave the root shell manually." >&2
+    exit 1
+fi
+
+echo "Switching from root → $target"
+exec su - "$target"
