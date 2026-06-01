@@ -11,6 +11,10 @@ echo "Using fake HOME=${HOME} for prompt test"
 # Optionally create an empty .bash_aliases so sourcing in .bashrc is predictable
 touch "${HOME}/.bash_aliases"
 
+# BASH_TESTING bypasses the interactive-shell guard in .bashrc so it can be
+# sourced from this non-interactive test script.
+export BASH_TESTING=1
+
 # Verify that .bashrc defines prompt helpers and PS1 can be built
 # shellcheck source=/dev/null
 source ./.bashrc
