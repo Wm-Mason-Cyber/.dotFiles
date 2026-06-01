@@ -171,6 +171,12 @@ setup_git_identity() {
         echo "DRY-RUN: would prompt for git identity"
         return
     fi
+    # Skip in non-interactive contexts (pipes, CI, scripts)
+    if [ ! -t 0 ]; then
+        echo "Non-interactive: skipping git identity setup."
+        echo "Run manually: git config --global user.name 'Your Name'"
+        return 0
+    fi
     echo ""
     echo "=== Git Identity Setup ==="
     echo "Your .gitconfig still has placeholder values."

@@ -1,49 +1,70 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Run the prompt verification inside a temporary HOME to avoid sourcing
-# or modifying the contributor's real dotfiles.
+REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$REPO_DIR"
+
+fail() { echo "FAIL: $*" >&2; exit 2; }
+
 TMP_HOME=$(mktemp -d)
 trap 'rm -rf "${TMP_HOME}"' EXIT
 export HOME="${TMP_HOME}"
-echo "Using fake HOME=${HOME} for prompt test"
+echo "Using fake HOME=${TMP_HOME} for prompt test"
 
-# Optionally create an empty .bash_aliases so sourcing in .bashrc is predictable
-touch "${HOME}/.bash_aliases"
+# Provide an empty .bash_aliases so .bashrc sourcing is predictable
+touch "${TMP_HOME}/.bash_aliases"
 
-# BASH_TESTING bypasses the interactive-shell guard in .bashrc so it can be
-# sourced from this non-interactive test script.
+# BASH_TESTING bypasses the [[ $- != *i* ]] guard in .bashrc
 export BASH_TESTING=1
-
-# Verify that .bashrc defines prompt helpers and PS1 can be built
 # shellcheck source=/dev/null
 source ./.bashrc
 
-# Ensure functions exist
-declare -F build_ps1 >/dev/null
-declare -F prompt_short >/dev/null
-declare -F prompt_verbose >/dev/null
-declare -F git_branch >/dev/null
-declare -F git_dirty >/dev/null
+# ── Required functions exist ──────────────────────────────────────────────────
+echo "Checking required functions..."
+for fn in build_ps1 prompt_short prompt_verbose git_branch git_dirty \
+           dotfiles_prompt_preset; do
+    declare -F "$fn" >/dev/null || fail "function not defined: $fn"
+done
+echo "  OK: all prompt functions defined"
 
-echo "Found prompt helper functions"
+# ── PROMPT_COMMAND is wired up ────────────────────────────────────────────────
+echo "Checking PROMPT_COMMAND..."
+[ "${PROMPT_COMMAND:-}" = "build_ps1" ] \
+    || fail "PROMPT_COMMAND is '${PROMPT_COMMAND:-}', expected 'build_ps1'"
+echo "  OK: PROMPT_COMMAND=build_ps1"
 
-# Build PS1 and ensure non-empty
+# ── Default prompt style and non-empty PS1 ───────────────────────────────────
+echo "Checking default prompt..."
+[ "${DOTFILES_PROMPT_STYLE:-}" = "short" ] \
+    || fail "DOTFILES_PROMPT_STYLE is '${DOTFILES_PROMPT_STYLE:-}', expected 'short'"
 build_ps1
-if [ -z "${PS1:-}" ]; then
-  echo "PS1 is empty" >&2
-  exit 2
-fi
+[ -n "${PS1:-}" ] || fail "PS1 is empty after build_ps1"
+echo "  OK: short PS1 is non-empty"
 
-echo "PS1 is non-empty"
+# ── prompt_short vs prompt_verbose produce different PS1 ─────────────────────
+echo "Checking prompt_short vs prompt_verbose..."
+prompt_short
+short_ps1="${PS1}"
+prompt_verbose
+verbose_ps1="${PS1}"
+[ "$short_ps1" != "$verbose_ps1" ] \
+    || fail "short and verbose PS1 are identical (verbose should contain @host)"
+echo "  OK: short != verbose"
 
-# Test presets and switching
-if declare -F dotfiles_prompt_preset >/dev/null 2>&1; then
-  dotfiles_prompt_preset school >/dev/null 2>&1 || true
-  prompt_short >/dev/null 2>&1 || true
-  dotfiles_prompt_preset night >/dev/null 2>&1 || true
-  prompt_verbose >/dev/null 2>&1 || true
-  echo "Presets and toggles exercised"
-fi
+# ── Presets run without error and rebuild PS1 ────────────────────────────────
+echo "Checking presets..."
+for preset in school night high-contrast; do
+    dotfiles_prompt_preset "$preset" 2>/dev/null   # tput may be limited in CI
+    [ -n "${PS1:-}" ] || fail "PS1 empty after preset: $preset"
+    echo "  OK: preset $preset"
+done
 
+# ── Invalid preset exits non-zero ────────────────────────────────────────────
+echo "Checking invalid preset..."
+dotfiles_prompt_preset bogus 2>/dev/null \
+    && fail "invalid preset should return non-zero" \
+    || true
+echo "  OK: invalid preset rejected"
+
+echo "verify_prompt.sh OK"
 exit 0
