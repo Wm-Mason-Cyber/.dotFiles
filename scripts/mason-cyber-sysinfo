@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+# mason-cyber-sysinfo - quick system information snapshot
+#
+# Usage: mason-cyber-sysinfo
+#
+# Shows: user, host, OS, kernel, CPU, memory, disk, shell, uptime.
+# Handy at the start of a lab to confirm you are on the right machine.
+
+set -euo pipefail
+
+get_os() {
+    if [ -f /etc/os-release ]; then
+        # shellcheck source=/dev/null
+        . /etc/os-release
+        printf '%s' "${PRETTY_NAME:-${NAME:-unknown}}"
+    else
+        uname -o 2>/dev/null || printf 'unknown'
+    fi
+}
+
+get_cpu() {
+    if [ -f /proc/cpuinfo ]; then
+        awk -F: '/^model name/{gsub(/^[ \t]+/,"",$2); print $2; exit}' /proc/cpuinfo
+    else
+        sysctl -n machdep.cpu.brand_string 2>/dev/null || printf 'unknown'
+    fi
+}
+
+get_mem() {
+    if command -v free >/dev/null 2>&1; then
+        free -h | awk '/^Mem:/{printf "%s used / %s total", $3, $2}'
+    else
+        printf 'unknown'
+    fi
+}
+
+get_disk() {
+    df -h / 2>/dev/null | awk 'NR==2{printf "%s used / %s total (%s full)", $3, $2, $5}' \
+        || printf 'unknown'
+}
+
+get_uptime() {
+    uptime -p 2>/dev/null || uptime
+}
+
+printf '=== System Information ===\n\n'
+printf '  %-10s %s\n' 'User:'    "$(whoami)"
+printf '  %-10s %s\n' 'Host:'    "$(hostname)"
+printf '  %-10s %s\n' 'OS:'      "$(get_os)"
+printf '  %-10s %s\n' 'Kernel:'  "$(uname -r)"
+printf '  %-10s %s\n' 'Arch:'    "$(uname -m)"
+printf '  %-10s %s\n' 'Shell:'   "${SHELL:-unknown}"
+printf '  %-10s %s\n' 'Uptime:'  "$(get_uptime)"
+printf '\n'
+printf '  %-10s %s\n' 'CPU:'     "$(get_cpu)"
+printf '  %-10s %s\n' 'Memory:'  "$(get_mem)"
+printf '  %-10s %s\n' 'Disk:'    "$(get_disk)"
+printf '\n'
