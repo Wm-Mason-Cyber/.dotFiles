@@ -1,5 +1,5 @@
 # Small convenience Makefile
-.PHONY: install dry-run lint
+.PHONY: install symlink-install dry-run lint test
 
 install:
 	./install.sh
@@ -12,12 +12,12 @@ dry-run:
 
 lint:
 	# Requires shellcheck installed locally
-	shellcheck install.sh standard-apps.sh || true
+	shellcheck install.sh standard-apps.sh scripts/mason-cyber-* || true
 
 test:
-	# Run the repository's verification scripts
 	@echo "Running tests..."
 	./tests/verify_prompt.sh
 	./tests/verify_standard_apps.sh
 	./tests/verify_install.sh
+	./tests/verify_scripts.sh
 	@echo "All tests passed"

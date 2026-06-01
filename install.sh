@@ -7,6 +7,14 @@ set -euo pipefail
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 FILES=(.bashrc .bash_aliases .vimrc .gitconfig)
 
+SCRIPTS=(
+    scripts/mason-cyber-colors
+    scripts/mason-cyber-escape-root
+    scripts/mason-cyber-hashme
+    scripts/mason-cyber-netinfo
+    scripts/mason-cyber-sysinfo
+)
+
 MODE=copy   # copy (default) or symlink
 FORCE=0
 DRY_RUN=0
@@ -111,6 +119,44 @@ restore_backups() {
     shopt -u nullglob
 }
 
+# Install mason-cyber-* scripts to ~/.local/bin/ and make them executable.
+install_scripts() {
+    local bin_dir="$HOME/.local/bin"
+    if [ "$DRY_RUN" -eq 1 ]; then
+        echo "DRY-RUN: would mkdir -p $bin_dir"
+    else
+        mkdir -p "$bin_dir"
+    fi
+
+    for s in "${SCRIPTS[@]}"; do
+        local src="$REPO_DIR/$s"
+        local name; name=$(basename "$s")
+        local dst="$bin_dir/$name"
+
+        if [ ! -e "$src" ]; then
+            echo "Skipping $name (missing in repo)"
+            continue
+        fi
+
+        if [ -e "$dst" ] && ! confirm "Overwrite existing $dst?"; then
+            echo "Left $dst unchanged"
+            continue
+        fi
+
+        if [ "$DRY_RUN" -eq 1 ]; then
+            echo "DRY-RUN: would install $name -> $dst"
+        elif [ "$MODE" = "symlink" ]; then
+            ln -sfn "$src" "$dst"
+            chmod +x "$dst"
+            echo "Linked $dst"
+        else
+            cp -a "$src" "$dst"
+            chmod +x "$dst"
+            echo "Installed $dst"
+        fi
+    done
+}
+
 # Prompt for git name/email if .gitconfig still has placeholder values.
 setup_git_identity() {
     local cfg="$HOME/.gitconfig"
@@ -183,6 +229,7 @@ for d in "$HOME/.vim/tmp" "$HOME/.vim/backup"; do
     fi
 done
 
+install_scripts
 setup_git_identity
 
 echo ""

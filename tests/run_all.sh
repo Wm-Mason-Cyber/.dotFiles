@@ -9,6 +9,7 @@ else
   ./tests/verify_prompt.sh
   ./tests/verify_standard_apps.sh
   ./tests/verify_install.sh
+  ./tests/verify_scripts.sh
 fi
 
 echo "All tests completed"
