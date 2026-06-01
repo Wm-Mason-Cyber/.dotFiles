@@ -1,4 +1,3 @@
-
 #!/usr/bin/env bash
 # ~/.bashrc - sensible defaults for students and instructors
 # Simple, easy-to-read, and safe for classroom VMs.
@@ -28,7 +27,11 @@ umask 0022
 
 # Enable colorized ls if possible
 if [ -x /usr/bin/dircolors ]; then
-    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+    if test -r ~/.dircolors; then
+        eval "$(dircolors -b ~/.dircolors)"
+    else
+        eval "$(dircolors -b)"
+    fi
     alias ls='ls --color=auto'
 fi
 

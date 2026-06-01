@@ -64,9 +64,9 @@ done
 
 # ── Invalid preset exits non-zero ────────────────────────────────────────────
 echo "Checking invalid preset..."
-dotfiles_prompt_preset bogus 2>/dev/null \
-    && fail "invalid preset should return non-zero" \
-    || true
+if dotfiles_prompt_preset bogus 2>/dev/null; then
+    fail "invalid preset should return non-zero"
+fi
 echo "  OK: invalid preset rejected"
 
 echo "verify_prompt.sh OK"

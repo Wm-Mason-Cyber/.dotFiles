@@ -30,9 +30,9 @@ echo "  OK: list output has expected sections and packages"
 
 # ── Unknown subcommand exits non-zero ────────────────────────────────────────
 echo "Checking unknown subcommand..."
-bash ./standard-apps.sh bogus >/dev/null 2>&1 \
-    && fail "'bogus' subcommand should exit non-zero" \
-    || true
+if bash ./standard-apps.sh bogus >/dev/null 2>&1; then
+    fail "'bogus' subcommand should exit non-zero"
+fi
 echo "  OK: unknown subcommand rejected"
 
 # ── install/security/all subcommands parse without syntax error ───────────────

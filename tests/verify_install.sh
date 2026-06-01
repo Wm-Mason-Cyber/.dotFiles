@@ -48,8 +48,8 @@ done
 
 # Verify vim directories were created
 echo "Checking vim directories..."
-[ -d "${TMP_HOME}/.vim/tmp" ]    || fail "~/.vim/tmp not created"
-[ -d "${TMP_HOME}/.vim/backup" ] || fail "~/.vim/backup not created"
+[ -d "${TMP_HOME}/.vim/tmp" ]    || fail "vim tmp dir not created"
+[ -d "${TMP_HOME}/.vim/backup" ] || fail "vim backup dir not created"
 echo "  OK: ~/.vim/tmp and ~/.vim/backup"
 
 # ── Dry-run mode (separate pass, reuses same temp HOME) ──────────────────────

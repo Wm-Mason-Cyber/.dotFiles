@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # ~/.bash_aliases - small, clear, and documented for classroom use
 
 # Common navigation

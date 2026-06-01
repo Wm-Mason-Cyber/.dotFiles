@@ -43,10 +43,12 @@ echo "  OK: hashme file mode works"
 
 # ── mason-cyber-hashme: error cases ──────────────────────────────────────────
 echo "Checking mason-cyber-hashme error handling..."
-bash scripts/mason-cyber-hashme /nonexistent/file 2>/dev/null \
-    && fail "hashme: should exit non-zero for missing file" || true
-bash scripts/mason-cyber-hashme 2>/dev/null \
-    && fail "hashme: should exit non-zero with no args" || true
+if bash scripts/mason-cyber-hashme /nonexistent/file 2>/dev/null; then
+    fail "hashme: should exit non-zero for missing file"
+fi
+if bash scripts/mason-cyber-hashme 2>/dev/null; then
+    fail "hashme: should exit non-zero with no args"
+fi
 echo "  OK: hashme error handling correct"
 
 # ── mason-cyber-sysinfo ───────────────────────────────────────────────────────
@@ -79,9 +81,9 @@ fi
 
 # ── mason-cyber-colors: must be sourced, not executed ────────────────────────
 echo "Checking mason-cyber-colors exec guard..."
-bash scripts/mason-cyber-colors 2>/dev/null \
-    && fail "mason-cyber-colors should exit non-zero when executed (not sourced)" \
-    || true
+if bash scripts/mason-cyber-colors 2>/dev/null; then
+    fail "mason-cyber-colors should exit non-zero when executed (not sourced)"
+fi
 echo "  OK: colors exec guard works"
 
 echo "verify_scripts.sh OK"
