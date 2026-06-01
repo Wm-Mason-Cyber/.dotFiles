@@ -111,25 +111,25 @@ fi
 dotfiles_prompt_preset() {
     case "$1" in
         school)
-            DOTFILES_PS_USER_COLOR="$(tput setaf 2)"
-            DOTFILES_PS_HOST_COLOR="$(tput setaf 6)"
-            DOTFILES_PS_CWD_COLOR="$(tput setaf 4)"
-            DOTFILES_PS_GIT_COLOR="$(tput setaf 3)"
-            DOTFILES_PS_ROOT_COLOR="$(tput setaf 1)"
+            DOTFILES_PS_USER_COLOR="$(tput setaf 2  2>/dev/null || true)"
+            DOTFILES_PS_HOST_COLOR="$(tput setaf 6  2>/dev/null || true)"
+            DOTFILES_PS_CWD_COLOR="$(tput setaf 4  2>/dev/null || true)"
+            DOTFILES_PS_GIT_COLOR="$(tput setaf 3  2>/dev/null || true)"
+            DOTFILES_PS_ROOT_COLOR="$(tput setaf 1  2>/dev/null || true)"
             ;;
         night)
-            DOTFILES_PS_USER_COLOR="$(tput setaf 5)"
-            DOTFILES_PS_HOST_COLOR="$(tput setaf 4)"
-            DOTFILES_PS_CWD_COLOR="$(tput setaf 6)"
-            DOTFILES_PS_GIT_COLOR="$(tput setaf 11 2>/dev/null || tput setaf 3)"
-            DOTFILES_PS_ROOT_COLOR="$(tput setaf 1)"
+            DOTFILES_PS_USER_COLOR="$(tput setaf 5  2>/dev/null || true)"
+            DOTFILES_PS_HOST_COLOR="$(tput setaf 4  2>/dev/null || true)"
+            DOTFILES_PS_CWD_COLOR="$(tput setaf 6  2>/dev/null || true)"
+            DOTFILES_PS_GIT_COLOR="$(tput setaf 11 2>/dev/null || tput setaf 3 2>/dev/null || true)"
+            DOTFILES_PS_ROOT_COLOR="$(tput setaf 1  2>/dev/null || true)"
             ;;
         high-contrast)
-            DOTFILES_PS_USER_COLOR="$(tput setaf 15 2>/dev/null || tput setaf 7)"
-            DOTFILES_PS_HOST_COLOR="$(tput setaf 12 2>/dev/null || tput setaf 4)"
-            DOTFILES_PS_CWD_COLOR="$(tput setaf 14 2>/dev/null || tput setaf 6)"
-            DOTFILES_PS_GIT_COLOR="$(tput setaf 13 2>/dev/null || tput setaf 5)"
-            DOTFILES_PS_ROOT_COLOR="$(tput setaf 9  2>/dev/null || tput setaf 1)"
+            DOTFILES_PS_USER_COLOR="$(tput setaf 15 2>/dev/null || tput setaf 7  2>/dev/null || true)"
+            DOTFILES_PS_HOST_COLOR="$(tput setaf 12 2>/dev/null || tput setaf 4  2>/dev/null || true)"
+            DOTFILES_PS_CWD_COLOR="$(tput setaf 14 2>/dev/null || tput setaf 6  2>/dev/null || true)"
+            DOTFILES_PS_GIT_COLOR="$(tput setaf 13 2>/dev/null || tput setaf 5  2>/dev/null || true)"
+            DOTFILES_PS_ROOT_COLOR="$(tput setaf 9  2>/dev/null || tput setaf 1  2>/dev/null || true)"
             ;;
         *)
             echo "Usage: dotfiles_prompt_preset <school|night|high-contrast>" >&2

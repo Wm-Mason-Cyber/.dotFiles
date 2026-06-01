@@ -16,7 +16,7 @@ jobs:
       - name: Set up Node.js (for ajv)
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Install ajv-cli
         run: npm install -g ajv-cli
@@ -32,7 +32,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.x'
 
@@ -44,5 +44,15 @@ jobs:
           git config user.email "ci@example.com"
           git config user.name "CI Runner"
 
-      - name: Run pre-commit on all files
+      - name: Cache pre-commit environments
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit-${{ runner.os }}-${{ hashFiles('.pre-commit-config.yaml') }}
+
+      - name: Run Precommit on all files
+        env:
+          # Prevent git from trying to prompt for HTTPS credentials via stdin
+          # (stdin is /dev/null in CI; prompting causes ENXIO / "No such device")
+          GIT_TERMINAL_PROMPT: "0"
         run: pre-commit run --all-files

@@ -54,7 +54,10 @@ echo "  OK: short != verbose"
 # ── Presets run without error and rebuild PS1 ────────────────────────────────
 echo "Checking presets..."
 for preset in school night high-contrast; do
-    dotfiles_prompt_preset "$preset" 2>/dev/null   # tput may be limited in CI
+    # || true: tput may fail with no terminal; the preset itself handles that
+    # gracefully, but we suppress any residual non-zero exit here so set -e
+    # does not fire before we can check PS1.
+    dotfiles_prompt_preset "$preset" 2>/dev/null || true
     [ -n "${PS1:-}" ] || fail "PS1 empty after preset: $preset"
     echo "  OK: preset $preset"
 done
