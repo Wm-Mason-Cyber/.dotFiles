@@ -84,6 +84,7 @@ git_branch() {
                  || git rev-parse --short HEAD 2>/dev/null)
         [ -n "$branch" ] && printf '%s' "$branch"
     fi
+    true  # always exit 0; callers may run under set -e
 }
 
 # Print '*' if the working tree has uncommitted changes
@@ -91,6 +92,7 @@ git_dirty() {
     if command -v git >/dev/null 2>&1 && git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
         [ -n "$(git status --porcelain 2>/dev/null)" ] && printf '*'
     fi
+    true  # always exit 0; callers may run under set -e
 }
 
 # Prompt symbol: # for root, $ for normal users
