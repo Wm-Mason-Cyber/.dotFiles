@@ -1,0 +1,13 @@
+# Backup files created by install.sh
+*.bak
+*.bak.*
+
+# Editor temporaries
+*.swp
+*.swo
+*~
+.*.swp
+
+# OS noise
+.DS_Store
+Thumbs.db
