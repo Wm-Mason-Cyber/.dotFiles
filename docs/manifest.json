@@ -9,7 +9,7 @@
     "Make the repo easy to fork and customize per student",
     "Keep defaults transparent (do not install a global gitignore by default)"
   ],
-  "platforms": ["debian", "ubuntu", "wsl"],
+  "platforms": ["debian", "ubuntu", "fedora", "arch", "wsl"],
   "entrypoints": {
     "install": "./install.sh",
     "packages": "./standard-apps.sh"
