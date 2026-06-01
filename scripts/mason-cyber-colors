@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+# mason-cyber-colors - reset terminal colors and restore the dotfile prompt
+#
+# This script MUST be sourced to affect your current shell session:
+#
+#   . mason-cyber-colors                   # reset colors
+#   source mason-cyber-colors school       # reset + apply a color preset
+#
+# Optional presets: school | night | high-contrast
+#
+# If you accidentally ran it as a normal command, that is okay —
+# it will explain what to do.
+
+# Detect execution vs sourcing
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    cat <<'EOF'
+mason-cyber-colors must be SOURCED (not executed) to affect your shell.
+
+Try one of these:
+  . mason-cyber-colors
+  source mason-cyber-colors
+  source mason-cyber-colors school          # also apply a color preset
+  source mason-cyber-colors high-contrast
+
+Presets available: school | night | high-contrast
+EOF
+    exit 1
+fi
+
+_mccolors_preset="${1:-}"
+
+# Full terminal reset: restores default colors and clears the screen.
+# Equivalent to the built-in 'reset' command.
+if command -v tput >/dev/null 2>&1; then
+    tput reset
+else
+    printf '\033c'
+fi
+
+# Re-source bashrc to reload prompt and color settings.
+# We are already in an interactive shell so the guard in .bashrc passes.
+if [ -f "$HOME/.bashrc" ]; then
+    # shellcheck source=/dev/null
+    . "$HOME/.bashrc"
+fi
+
+# Apply named preset if requested
+if [ -n "$_mccolors_preset" ]; then
+    if declare -f dotfiles_prompt_preset >/dev/null 2>&1; then
+        dotfiles_prompt_preset "$_mccolors_preset"
+        prompt_verbose
+    else
+        echo "Preset functions not found. Try: source ~/.bashrc" >&2
+    fi
+fi
+
+echo "Terminal reset. Prompt style: ${DOTFILES_PROMPT_STYLE:-default}"
+echo "Run 'source mason-cyber-colors school' to switch color themes."
+
+unset _mccolors_preset
