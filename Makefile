@@ -4,8 +4,8 @@
 install:
 	./install.sh
 
-symlink-install:
-	./install.sh --symlink
+copy-install:
+	./install.sh --copy
 
 dry-run:
 	./install.sh --dry-run

@@ -15,7 +15,7 @@ SCRIPTS=(
     scripts/mason-cyber-sysinfo
 )
 
-MODE=copy   # copy (default) or symlink
+MODE=symlink   # symlink (default) or copy
 FORCE=0
 DRY_RUN=0
 BACKUP=0
@@ -25,8 +25,12 @@ usage() {
     cat <<'EOF'
 Usage: install.sh [OPTIONS]
 
+Creates symlinks by default (recommended):
+  ~/.bashrc → ~/dotfiles/.bashrc, etc.
+Edits you make in ~ go directly into the repo with no copying needed.
+
 Options:
-  --symlink, -s    Create symbolic links instead of copying files
+  --copy, -c       Copy files instead of symlinking
   --force, -f      Overwrite existing files without prompting
   --dry-run        Show actions but do not perform them
   --backup         Back up existing files before replacing
@@ -34,8 +38,8 @@ Options:
   -h, --help       Show this help
 
 Examples:
-  ./install.sh               # copy files (prompts before overwriting)
-  ./install.sh --symlink     # create symlinks instead of copying
+  ./install.sh               # symlink (recommended)
+  ./install.sh --copy        # copy files instead of symlinking
   ./install.sh --force       # overwrite without confirmation
   ./install.sh --dry-run     # show what would happen
   ./install.sh --restore     # interactively restore any backups
@@ -44,7 +48,8 @@ EOF
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        --symlink|-s)  MODE=symlink; shift ;;
+        --copy|-c)     MODE=copy; shift ;;
+        --symlink|-s)  MODE=symlink; shift ;;   # kept for compatibility
         --force|-f)    FORCE=1; shift ;;
         --backup)      BACKUP=1; shift ;;
         --dry-run)     DRY_RUN=1; shift ;;
