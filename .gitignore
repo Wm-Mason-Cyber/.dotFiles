@@ -11,3 +11,7 @@
 # OS noise
 .DS_Store
 Thumbs.db
+
+# all the ai settings
+.claude/
+.gpt/
