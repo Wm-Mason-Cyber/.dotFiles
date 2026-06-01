@@ -9,63 +9,47 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Configure local git identity for runner
+
+      - name: Configure git identity for CI
         run: |
           git config --global user.email "ci@example.com"
           git config --global user.name "CI Runner"
+
       - name: Install deps
-        run: sudo apt update && sudo apt install -y bash git
-      - name: Validate .bashrc and helpers
-        run: |
-          set -euo pipefail
-          # shellcheck source=/dev/null
-          source ./.bashrc
-          # check that functions exist
-          declare -F build_ps1 >/dev/null
-          declare -F prompt_short >/dev/null
-          declare -F prompt_verbose >/dev/null
-          declare -F git_branch >/dev/null
-          declare -F git_dirty >/dev/null
-          # PS1 should be non-empty after building
-          build_ps1
-          if [ -z "${PS1:-}" ]; then
-            echo "PS1 is empty" >&2
-            exit 2
-          fi
-          echo "PS1 and helpers present"
-      - name: Run package list check
-        run: |
-          set -euo pipefail
-          bash ./standard-apps.sh list
+        run: sudo apt-get update && sudo apt-get install -y bash git
 
-      - name: Run installer dry-run check
-        run: |
-          set -euo pipefail
-          # ensure installer parses and dry-run doesn't error
-          bash -n ./install.sh
-          bash ./install.sh --dry-run --backup || true
+      - name: Make tests executable
+        run: chmod +x tests/*.sh
 
-      - name: Git branch and dirty marker test
+      - name: Validate .bashrc helpers and prompt
+        # verify_prompt.sh sets BASH_TESTING=1 internally, bypassing the
+        # [[ $- != *i* ]] guard that would otherwise cause sourcing to no-op
+        # in a non-interactive CI shell.
+        run: ./tests/verify_prompt.sh
+
+      - name: Live git_branch and git_dirty test
         run: |
           set -euo pipefail
+          REPO="$GITHUB_WORKSPACE"
           tmpdir=$(mktemp -d)
-          pushd "$tmpdir"
+          cd "$tmpdir"
           git init -q
+          git config user.email "ci@example.com"
+          git config user.name "CI Runner"
           echo hello > a.txt
           git add a.txt
           git commit -m init -q
-          # check branch name
-          branch=$(bash -lc 'source ../../.bashrc >/dev/null 2>&1; git_branch')
-          if [ -z "$branch" ]; then
-            echo "git_branch returned empty" >&2
-            exit 2
-          fi
-          # make dirty
+
+          # BASH_TESTING=1 bypasses the interactive-shell guard in .bashrc.
+          # Use absolute path to avoid fragile relative path assumptions.
+          branch=$(BASH_TESTING=1 bash -c "source '${REPO}/.bashrc' >/dev/null 2>&1; git_branch")
+          [ -n "$branch" ] || { echo "git_branch returned empty" >&2; exit 2; }
+          echo "git_branch OK: $branch"
+
           echo change >> a.txt
-          # dirty indicator
-          dirty=$(bash -lc 'source ../../.bashrc >/dev/null 2>&1; git_dirty')
-          if [ -z "$dirty" ]; then
-            echo "git_dirty returned empty on modified repo" >&2
-            exit 2
-          fi
-          popd
+          dirty=$(BASH_TESTING=1 bash -c "source '${REPO}/.bashrc' >/dev/null 2>&1; git_dirty")
+          [ -n "$dirty" ] || { echo "git_dirty returned empty on modified repo" >&2; exit 2; }
+          echo "git_dirty OK: $dirty"
+
+      - name: Run package list check
+        run: bash ./standard-apps.sh list

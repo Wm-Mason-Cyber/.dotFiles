@@ -13,10 +13,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Bash (ensure latest tools)
+      - name: Set up Bash and tools
         run: |
           sudo apt-get update
           sudo apt-get install -y bash coreutils
+
+      - name: Configure git identity for CI
+        run: |
+          git config --global user.email "ci@example.com"
+          git config --global user.name "CI Runner"
 
       - name: Make tests executable
         run: chmod +x tests/*.sh
@@ -26,9 +31,9 @@ jobs:
           TMP_HOME=$(mktemp -d)
           echo "Using fake HOME=${TMP_HOME} for CI tests"
           export HOME="${TMP_HOME}"
-          # Create an empty .bash_aliases so .bashrc sourcing behaves predictably
           touch "${HOME}/.bash_aliases"
           ./tests/verify_prompt.sh
           ./tests/verify_standard_apps.sh
           ./tests/verify_install.sh
+          ./tests/verify_scripts.sh
         shell: bash
