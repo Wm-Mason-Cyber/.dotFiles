@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+# mason-cyber-netinfo - display a friendly summary of network configuration
+#
+# Usage: mason-cyber-netinfo
+#
+# Shows: hostname, all IPv4 addresses, default gateway, DNS servers.
+# Useful for identifying your machine's address before a lab exercise.
+
+set -euo pipefail
+
+sep() { printf '%s\n' "-------------------------------------------"; }
+
+printf '=== Network Information ===\n\n'
+
+printf 'Hostname:  %s\n' "$(hostname)"
+
+printf '\nIPv4 Addresses:\n'
+if command -v ip >/dev/null 2>&1; then
+    ip -4 addr show | awk '
+        /^[0-9]+: / { iface = $2; sub(/:$/, "", iface) }
+        /inet / {
+            split($2, a, "/")
+            if (a[1] != "127.0.0.1")
+                printf "  %-12s %s/%s\n", iface, a[1], a[2]
+        }
+    ' || printf '  (none found)\n'
+elif command -v ifconfig >/dev/null 2>&1; then
+    ifconfig | awk '
+        /^[a-zA-Z]/ { iface = $1; sub(/:$/, "", iface) }
+        /inet / {
+            for (i=1;i<=NF;i++) if ($i=="inet") addr=$(i+1)
+            if (addr != "127.0.0.1") printf "  %-12s %s\n", iface, addr
+        }
+    ' || printf '  (none found)\n'
+else
+    printf '  (ip and ifconfig not found — install net-tools or iproute2)\n'
+fi
+
+printf '\nDefault Gateway:\n'
+if command -v ip >/dev/null 2>&1; then
+    gw=$(ip route 2>/dev/null | awk '/^default/{print $3; exit}')
+    dev=$(ip route 2>/dev/null | awk '/^default/{print $5; exit}')
+    if [ -n "$gw" ]; then
+        printf '  %s  (via %s)\n' "$gw" "${dev:-unknown}"
+    else
+        printf '  (no default route)\n'
+    fi
+elif command -v route >/dev/null 2>&1; then
+    route -n 2>/dev/null | awk '/^0\.0\.0\.0/{printf "  %s\n", $2; exit}' \
+        || printf '  (none found)\n'
+else
+    printf '  (ip and route not found)\n'
+fi
+
+printf '\nDNS Servers:\n'
+if [ -f /etc/resolv.conf ]; then
+    servers=$(awk '/^nameserver/{print "  " $2}' /etc/resolv.conf)
+    if [ -n "$servers" ]; then
+        printf '%s\n' "$servers"
+    else
+        printf '  (none in /etc/resolv.conf)\n'
+    fi
+else
+    printf '  (/etc/resolv.conf not found)\n'
+fi
+
+printf '\n'
