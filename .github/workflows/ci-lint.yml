@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [ main ]
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   lint:
     runs-on: ubuntu-latest
@@ -31,6 +34,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Install system tools (shellcheck + make)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck make python3-yaml
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -44,15 +52,5 @@ jobs:
           git config user.email "ci@example.com"
           git config user.name "CI Runner"
 
-      - name: Cache pre-commit environments
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pre-commit
-          key: pre-commit-${{ runner.os }}-${{ hashFiles('.pre-commit-config.yaml') }}
-
-      - name: Run Precommit on all files
-        env:
-          # Prevent git from trying to prompt for HTTPS credentials via stdin
-          # (stdin is /dev/null in CI; prompting causes ENXIO / "No such device")
-          GIT_TERMINAL_PROMPT: "0"
+      - name: Run pre-commit on all files
         run: pre-commit run --all-files

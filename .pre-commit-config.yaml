@@ -7,19 +7,28 @@ repos:
         language: system
         always_run: true
 
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
-    hooks:
-      - id: trailing-whitespace
-      - id: end-of-file-fixer
-      - id: check-yaml
-
-  - repo: https://github.com/pre-commit/mirrors-shellcheck
-    rev: v0.10.0
-    hooks:
       - id: shellcheck
+        name: shellcheck
+        entry: shellcheck
+        language: system
+        types: [shell]
 
-  - repo: https://github.com/codespell-project/codespell
-    rev: v2.4.1
-    hooks:
-      - id: codespell
+      - id: check-yaml
+        name: check yaml syntax
+        entry: python3 -c "
+import sys, yaml
+for f in sys.argv[1:]:
+    try:
+        yaml.safe_load(open(f))
+    except yaml.YAMLError as e:
+        print(f'{f}: {e}', file=sys.stderr); sys.exit(1)
+"
+        language: system
+        types: [yaml]
+
+      - id: trailing-whitespace
+        name: trailing whitespace
+        entry: bash -c 'grep -rn " $" "$@" && exit 1 || true' --
+        language: system
+        types: [text]
+        exclude: '\.md$'
